@@ -6,6 +6,8 @@ import psycopg2
 
 root=Tk()
 
+custom_font = ('Helvetica', 20)
+
 
 
 
@@ -39,11 +41,23 @@ def adminfun():
         for widget in admin1.winfo_children():
              widget.destroy()
 
+    def addproductfun():
+             clear_window(admin) 
+             productlabelframe=LabelFrame(admin,text="ADD Product",font=custom_font)
+             productlabelframe.pack(pady=60)
+             namelabel=Label(productlabelframe, text="Name: ").grid(row=1,column=0,padx=5)  
+             nameinput=Entry(productlabelframe).grid(row=1,column=1,padx=5,pady=10)
+
+
+
+    
 
 
 
 
     def loginfun():
+       
+
         adminusername=uname_input_admin.get()
         adminpass=pass_input_admin.get()
     
@@ -54,7 +68,7 @@ def adminfun():
              messagebox.showinfo("Successful login","You are loged in as "+adminusername)
              #add prodrct
 
-             addproductbtn=Button(admin,text="Add product").pack()
+             addproductbtn=Button(admin,text="Add product", command=addproductfun).pack()
              
 
 
