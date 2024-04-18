@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import messagebox
 import psycopg2
+from tkinter import filedialog
+from PIL import ImageTk
+
 
 
 
@@ -41,19 +44,53 @@ def adminfun():
         for widget in admin1.winfo_children():
              widget.destroy()
 
-    def addproductfun():
+    def productsubmitfun(name,size,catagory,price,stock):                                                    #product submit fun 
+        
+        cur.execute("""
+
+            INSERT INTO product (product_id,prduct_name,size,catagory,price,stock) 
+                     VALUES (%s, %s,%s,%s,%s,%s)
+                    """, ("1",name,int(size),catagory,int(price),int(stock)))
+        
+
+
+        
+
+
+                                                                            
+         
+                
+
+    def addproductfun():                                                                                    #add product function
              clear_window(admin) 
              productlabelframe=LabelFrame(admin,text="ADD Product",font=custom_font,padx=25,pady=10)
              productlabelframe.pack(pady=60)
-             namelabel=Label(productlabelframe, text="Name: ").grid(row=1,column=0,padx=5)  
-             nameinput=Entry(productlabelframe).grid(row=1,column=1,padx=5,pady=10)
+             namelabel=Label(productlabelframe, text="Name: ")
+             namelabel.grid(row=1,column=0,padx=5)  
+             nameinput=Entry(productlabelframe)
+             nameinput.grid(row=1,column=1,padx=5,pady=10)
              catagorylabel=Label(productlabelframe, text="Catagory: ").grid(row=2, column=0)
-             catagoryinput=Entry(productlabelframe).grid(row=2, column=1)
+             catagoryinput=Entry(productlabelframe)
+             catagoryinput.grid(row=2, column=1)
              priceLabel=Label(productlabelframe, text="Price($):").grid(row=3,column=0)
-             priceInput=Entry(productlabelframe).grid(row=3,column=1,pady=10)
+             priceInput=Entry(productlabelframe)
+             priceInput.grid(row=3,column=1,pady=10)
              stocklabel=Label(productlabelframe,text="Stock Quantity:")
              stocklabel.grid(row=4,column=0)
-             stockentry=Entry(productlabelframe).grid(row=4,column=1)
+             stockentry=Entry(productlabelframe)
+             stockentry.grid(row=4,column=1)
+             sizelabel=Label(productlabelframe,text="Size").grid(row=5,column=0)
+             sizeentry=Entry(productlabelframe)
+             sizeentry.grid(row=5,column=1,pady=10)
+             imagebtn=Button(productlabelframe,text="Upload Image").grid(row=6,column=1)
+             
+             
+            
+             productsubmitbtn=Button(productlabelframe,text="Submit",command=lambda:productsubmitfun(nameinput.get(),sizeentry.get(),catagoryinput.get(),priceInput.get(),stockentry.get()))
+             productsubmitbtn.grid(row=7,columnspan=2,pady=10)
+
+
+
 
 
 
@@ -119,6 +156,7 @@ def adminfun():
     uname_input_admin.pack()
     pass_admin.pack()
     pass_input_admin.pack()
+    
 
     loginbtn=Button(admin_login_frame,text="Login",command=loginfun).pack(pady=10)
     
