@@ -43,10 +43,19 @@ def adminfun():
 
     def addproductfun():
              clear_window(admin) 
-             productlabelframe=LabelFrame(admin,text="ADD Product",font=custom_font)
+             productlabelframe=LabelFrame(admin,text="ADD Product",font=custom_font,padx=25,pady=10)
              productlabelframe.pack(pady=60)
              namelabel=Label(productlabelframe, text="Name: ").grid(row=1,column=0,padx=5)  
              nameinput=Entry(productlabelframe).grid(row=1,column=1,padx=5,pady=10)
+             catagorylabel=Label(productlabelframe, text="Catagory: ").grid(row=2, column=0)
+             catagoryinput=Entry(productlabelframe).grid(row=2, column=1)
+             priceLabel=Label(productlabelframe, text="Price($):").grid(row=3,column=0)
+             priceInput=Entry(productlabelframe).grid(row=3,column=1,pady=10)
+             stocklabel=Label(productlabelframe,text="Stock Quantity:")
+             stocklabel.grid(row=4,column=0)
+             stockentry=Entry(productlabelframe).grid(row=4,column=1)
+
+
 
 
 
