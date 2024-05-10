@@ -3,16 +3,33 @@ from tkinter import messagebox
 import psycopg2
 from tkinter import filedialog
 from PIL import ImageTk
+import customtkinter
+from customtkinter import *
+from PIL import Image,ImageTk
+root=customtkinter.CTk()
+
+
+width = 800
+height = 600
+
+# Get the screen width and height
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+# Calculate the position of the window
+x = (screen_width - width) // 2  # Center horizontally
+y = (screen_height - height) // 2  # Center vertically
+
+# Set the geometry of the window
+root.geometry(f"{width}x{height}+{x}+{y}")
 
 
 
 
-root=Tk()
+
+heading_font = ("Arial", 12, "bold")
 
 custom_font = ('Helvetica', 20)
-
-
-
 
 #connect to database
 
@@ -24,13 +41,109 @@ conn.autocommit = True
 
 #admin login function
 
+product_list=[]
+product_labels = []
 
+
+nt=350
+xpr=450
+xp=250
+ypr=350
+def product_picker(choice):
+     
+     global product_frame,ypr,xpr,nt,xp
+     product_frame=None
+     
+     
+     if not product_frame:  
+        product_frame = LabelFrame(root, borderwidth=0)
+        product_frame.place(x=xp, y=nt)
+        price_label_frame=LabelFrame(root,borderwidth=0)
+        price_label_frame.place(x=xpr,y=ypr)
 
         
+     
+     
+     
 
-
-
+     
     
+
+     product_list.append(choice)
+     
+     
+     
+
+     label=Label(product_frame,text=choice[1])
+     product_labels.append(label)
+     label.pack()
+     pricelabel=Label(price_label_frame,text=choice[4])
+     pricelabel.pack()
+
+
+
+     ypr=ypr+40
+     nt=nt+40
+
+     
+     
+     
+     
+     
+     
+     
+     
+
+def employee_view():
+         cur.execute("""
+
+
+                select * from product
+
+
+                        """)
+         data=cur.fetchall()
+         data1=["a","b","v"]
+         selected_product=StringVar()
+         selected_product.set("Select product")
+         
+
+         drop_product_menu=OptionMenu(root, selected_product,*data,command=product_picker)
+         drop_product_menu.place(x=550,y=200)
+         
+         
+         
+         productlabel_frame=Frame(root,width=30,borderwidth=300)
+         
+         productlabel_frame.place(x=350,y=200)
+         product_name_label=Label(root,text="Product",font=heading_font)
+         product_name_label.place(x=250,y=300)
+         price_label=Label(root,text="Price",font=heading_font)
+         price_label.place(x=450,y=300)
+         product_option=Label(root,text="Option",font=heading_font)
+         product_option.place(x=650,y=300)
+
+
+         
+              
+         
+
+         
+
+         
+
+         
+
+         #addproductbrn_list=customtkinter.CTkButton(root,text="ADD")
+         #addproductbrn_list.pack()
+
+              
+              
+
+
+
+
+
 
 
 #admin function
@@ -53,14 +166,6 @@ def adminfun():
                     """, ("1",name,int(size),catagory,int(price),int(stock)))
         
 
-
-        
-
-
-                                                                            
-         
-                
-
     def addproductfun():                                                                                    #add product function
              clear_window(admin) 
              productlabelframe=LabelFrame(admin,text="ADD Product",font=custom_font,padx=25,pady=10)
@@ -82,23 +187,28 @@ def adminfun():
              sizelabel=Label(productlabelframe,text="Size").grid(row=5,column=0)
              sizeentry=Entry(productlabelframe)
              sizeentry.grid(row=5,column=1,pady=10)
-             imagebtn=Button(productlabelframe,text="Upload Image").grid(row=6,column=1)
+             imagebtn=customtkinter.CTkButton(productlabelframe,text="Upload Image").grid(row=6,column=1)
              
              
             
-             productsubmitbtn=Button(productlabelframe,text="Submit",command=lambda:productsubmitfun(nameinput.get(),sizeentry.get(),catagoryinput.get(),priceInput.get(),stockentry.get()))
+             productsubmitbtn=customtkinter.CTkButton(productlabelframe,text="Submit",command=lambda:productsubmitfun(nameinput.get(),sizeentry.get(),catagoryinput.get(),priceInput.get(),stockentry.get()))
              productsubmitbtn.grid(row=7,columnspan=2,pady=10)
 
 
 
+    def print_sales_report():                                                                               #print sales report function
+         
 
 
 
-
-
+         return
     
 
 
+    
+         
+         
+    
 
 
     def loginfun():
@@ -114,7 +224,10 @@ def adminfun():
              messagebox.showinfo("Successful login","You are loged in as "+adminusername)
              #add prodrct
 
-             addproductbtn=Button(admin,text="Add product", command=addproductfun).pack()
+             addproductbtn=customtkinter.CTkButton(admin,text="Add product", command=addproductfun)
+             addproductbtn.place(x=400,y=500)
+             admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report).pack()
+
              
 
 
@@ -129,14 +242,12 @@ def adminfun():
     admin.iconbitmap('featured-image.ico')
     admin.title("Admin Pannel")
     admin.geometry("1600x800")
+    
     admin_login_frame=LabelFrame(admin,padx=50,pady=40)
     admin_login_frame.pack(pady=260)
 
 
 
-
-
-    
 
     #input labels 
     uname_admin=Label(admin_login_frame,text="Username:")
@@ -158,22 +269,16 @@ def adminfun():
     pass_input_admin.pack()
     
 
-    loginbtn=Button(admin_login_frame,text="Login",command=loginfun).pack(pady=10)
+    loginbtn=customtkinter.CTkButton(admin_login_frame,text="Login",command=loginfun).pack(pady=10)
     
        
 
 
+                                                                                                    
 
 
 
-
-
-
-######### print_inv function
-
-
-
-def prnt_inv():
+def prnt_inv():                                                                 ######### print_inv function
     invoice=Toplevel()
     invoice.title("Generate invoice")
     invoice.iconbitmap('featured-image.ico')
@@ -202,11 +307,7 @@ def prnt_inv():
             showlabel.pack()
 
 
-        
-
-
-
-
+ 
 
     invoicelabelframe=LabelFrame(invoice,text="")
     
@@ -234,7 +335,7 @@ def prnt_inv():
     
 
 
-    ###submit button function
+    ###submit customtkinter.CTkButton function
 
 
     def submitbtnfun():
@@ -254,13 +355,16 @@ def prnt_inv():
 
 
 
-# buttons of invoice window
-    submitbtn=Button(invoicelabelframe,text="Submit",command=submitbtnfun)
-    showrecordbtn=Button(invoicelabelframe,text="Show record",command=showrec)
+# customtkinter.CTkButtons of invoice window
+    submitbtn=customtkinter.CTkButton(invoicelabelframe,text="Submit",command=submitbtnfun)
+    showrecordbtn=customtkinter.CTkButton(invoicelabelframe,text="Show record",command=showrec)
     showrecordbtn.grid(row=4,columnspan=2)
 
     submitbtn.grid(row=3,columnspan=2)
 
+    
+
+employee_view()
 
 
 
@@ -269,11 +373,19 @@ def prnt_inv():
 
 
 
-#buttons of root window
-loginadmin=Button(root,text="Login",command=adminfun).pack()
 
-prntinvoice=Button(root,text="Print Invoice",command=prnt_inv).pack()
-exitbutton=Button(root,text="exit",command=root.quit).pack()
+
+
+
+
+
+
+
+#customtkinter.CTkButtons of root window
+loginadmin=customtkinter.CTkButton(root,text="Login",command=adminfun).pack()
+
+prntinvoice=customtkinter.CTkButton(root,text="Print Invoice",command=prnt_inv).pack()
+exitbutton=customtkinter.CTkButton(root,text="exit",command=root.quit).pack()
 
 
 
