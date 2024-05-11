@@ -27,7 +27,7 @@ root.geometry(f"{width}x{height}+{x}+{y}")
 
 
 
-
+del_font=('Arial',15) 
 
 heading_font = ("Arial", 12, "bold")
 
@@ -103,8 +103,30 @@ END $$;
 
 
             """)
+cur.execute("""
+
+                CREATE OR REPLACE VIEW TodaySales AS
+        SELECT 
+            p.product_id,
+            p.prduct_name,
+            SUM(c.total_bill) AS today_sales
+        FROM 
+            product p
+        JOIN 
+            customer c ON p.product_id = c.product_buy_id
+        WHERE 
+            c.date_col = CURRENT_DATE
+        GROUP BY 
+            p.product_id, p.prduct_name;
 
 
+
+
+
+
+                """)
+
+products_buy=[]
 
 def disable_widgets():
    
@@ -144,12 +166,12 @@ def submit_details_fun(bill):
      print(name,phno)
      current_date = datetime.date.today()
      
-     
-     cur.execute("""
+     for p in product_list:
+        cur.execute("""
 
-        insert into customer (customer_name ,customer_phno,total_bill,date_col) values(%s,%s,%s,%s)
-          
-                        """,(name,phno,bill,current_date))
+            insert into customer (customer_name ,customer_phno,total_bill,date_col,product_buy_id) values(%s,%s,%s,%s,%s)
+            
+                            """,(name,phno,bill,current_date,p[0]))
      
      
 def remove_customer_widgets():
@@ -163,7 +185,9 @@ def checkout():
     global total_bil
     total_bil=0
     for b in product_list:
+         products_buy.append(b[0])
          total_bil=total_bil+b[4]
+    print(products_buy)     
 
          
 
@@ -254,7 +278,7 @@ def clear_window(admin1):
         for widget in admin1.winfo_children():
              widget.destroy()     
      
-del_font=('Arial',15) 
+
 
 
 
@@ -285,8 +309,22 @@ def create_product_table():
     tree.place(x=950,y=300) 
 
 def deletefun():
-     name=prname_entry.get()
-     id=prid_entry.get()
+    name = prname_entry.get()
+    id = prid_entry.get()
+    cur.execute("""SELECT * FROM product""")
+    products = cur.fetchall()
+    print(name)
+    print(id)
+    for p in products:
+        print(p[0])
+        print(p[5])
+        if (p[0] == name and p[5] == id):
+
+            cur.execute("""DELETE FROM product WHERE product_id = %s""", (id,))
+            
+            break
+    else:
+            messagebox.showerror("!","Product not found")
 
      
 
@@ -308,12 +346,20 @@ def delete_product():
 
 
 
+
      return     
      
-     
+def clear_window(admin1):
+        # Destroy all widgets in the window
+        for widget in admin1.winfo_children():
+             widget.destroy()    
      
 
 def employee_view():
+         clear_window(root)
+         
+         
+
          cur.execute("""
 
 
@@ -322,7 +368,7 @@ def employee_view():
 
                         """)
          data=cur.fetchall()
-         data1=["a","b","v"]
+         
          selected_product=StringVar()
          selected_product.set("Select product")
          
@@ -359,10 +405,33 @@ def employee_view():
          #addproductbrn_list.pack()
 
               
-              
+def emp_pass_fun():
+     username=emp_username_entry.get()
+     password=emp_pass_entry.get()
+     print(username)
+     print(password)
+
+     if(username=="emp" and password=="pass"):
+          employee_view()
+     else:
+          messagebox.showwarning("Login failed","Incorrect password or username")
+          root.destroy()                  
 
 
 
+def authentication_emp():
+         clear_window(root)
+         global emp_username_entry,emp_pass_entry
+         emp_username=Label(root,text="Username",font=del_font)
+         emp_pass=Label(root,text="Password",font=del_font)
+         emp_username.place(x=400,y=200)
+         emp_pass.place(x=400,y=250)
+         emp_username_entry=customtkinter.CTkEntry(root)
+         emp_pass_entry=customtkinter.CTkEntry(root)
+         emp_username_entry.place(x=430,y=155)
+         emp_pass_entry.place(x=430,y=205)
+         emp_login_btn=customtkinter.CTkButton(root,text="Login",command=emp_pass_fun)
+         emp_login_btn.place(x=405,y=250)
 
 
 
@@ -392,7 +461,7 @@ def adminfun():
              productlabelframe=LabelFrame(admin,text="ADD Product",font=custom_font,padx=25,pady=10)
              productlabelframe.pack(pady=60)
              namelabel=Label(productlabelframe, text="Name: ")
-             namelabel.grid(row=1,column=0,padx=5)  
+             namelabel.grid(row=1,column=0,padx=5)   
              nameinput=Entry(productlabelframe)
              nameinput.grid(row=1,column=1,padx=5,pady=10)
              catagorylabel=Label(productlabelframe, text="Catagory: ").grid(row=2, column=0)
@@ -408,7 +477,7 @@ def adminfun():
              sizelabel=Label(productlabelframe,text="Size").grid(row=5,column=0)
              sizeentry=Entry(productlabelframe)
              sizeentry.grid(row=5,column=1,pady=10)
-             imagebtn=customtkinter.CTkButton(productlabelframe,text="Upload Image").grid(row=6,column=1)
+             
              
              
             
@@ -418,11 +487,31 @@ def adminfun():
 
 
     def print_sales_report():                                                                               #print sales report function
+         clear_window(admin)
+         cur.execute("""
+            select * from todaysales 
+
+
+
+            """)
+         sales=cur.fetchall()
+         print(sales)
+
+         tree =Treeview(admin, columns=("Product ID", "Name", "Sale"), show="headings")
+         tree.heading("Product ID", text="Product ID")
+         tree.heading("Name", text="Name")
+         tree.heading("Sale", text="Sale")
+
+        
+         for product in sales:
+            tree.insert("", "end", values=product)
+
+         tree.place(x=950,y=300)
+
+
+
+
          
-
-
-
-         return
     
 
 
@@ -449,7 +538,8 @@ def adminfun():
              addproductbtn.place(x=550,y=200)
              delproductbtn=customtkinter.CTkButton(admin,text="Delete a Product",command=delete_product)
              delproductbtn.place(x=550,y=250)
-             admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report).pack()
+             admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report)
+             admin_print_sales_repot.place(x=550,y=300)
 
              
 
@@ -587,7 +677,7 @@ def prnt_inv():                                                                 
 
     
 
-employee_view()
+
 
 
 
@@ -605,10 +695,13 @@ employee_view()
 
 
 #customtkinter.CTkButtons of root window
-loginadmin=customtkinter.CTkButton(root,text="Login",command=adminfun).pack()
+loginadmin=customtkinter.CTkButton(root,text="Login as admin",command=adminfun)
+loginadmin.place(x=350,y=200)
 
-prntinvoice=customtkinter.CTkButton(root,text="Print Invoice",command=prnt_inv).pack()
-exitbutton=customtkinter.CTkButton(root,text="exit",command=root.quit).pack()
+prntinvoice=customtkinter.CTkButton(root,text="Login as Employee",command=authentication_emp)
+prntinvoice.place(x=350,y=250)
+exitbutton=customtkinter.CTkButton(root,text="exit",command=root.quit)
+exitbutton.place(x=350,y=300)
 
 
 
