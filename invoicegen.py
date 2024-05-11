@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter.ttk import Treeview
 import psycopg2
 from tkinter import filedialog
 from PIL import ImageTk
@@ -44,6 +45,66 @@ conn.autocommit = True
 product_list=[]
 product_labels = []
 widget_layout={}
+
+
+cur.execute("""
+
+            CREATE TABLE IF NOT EXISTS product_logs (
+    log_id SERIAL PRIMARY KEY,
+    event_type VARCHAR(10),
+    product_id INTEGER,
+    event_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_name VARCHAR(100)
+                    )
+
+
+
+
+            """)
+cur.execute("""
+
+           CREATE OR REPLACE FUNCTION log_product_event()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO product_logs (event_type, product_id, user_name)
+        VALUES ('INSERT', NEW.product_id, current_user);
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO product_logs (event_type, product_id, user_name)
+        VALUES ('DELETE', OLD.product_id, current_user);
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
+            """)
+
+cur.execute("""
+
+        DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_trigger WHERE tgname = 'product_change_trigger'
+    ) THEN
+        CREATE TRIGGER product_change_trigger
+        AFTER INSERT OR DELETE ON product
+        FOR EACH ROW
+        EXECUTE FUNCTION log_product_event();
+    END IF;
+END $$;
+
+
+
+
+
+            """)
+
+
 
 def disable_widgets():
    
@@ -193,11 +254,58 @@ def clear_window(admin1):
         for widget in admin1.winfo_children():
              widget.destroy()     
      
+del_font=('Arial',15) 
+
+
+
+
+
+def create_product_table():
+    
+    cur.execute(""" 
+
+            select product_id,prduct_name,catagory from product
+
+
+                    """)
+    
+    products = cur.fetchall()
+
+
+    
+    tree =Treeview(admin, columns=("Name", "Price", "Category"), show="headings")
+    tree.heading("Name", text="Name")
+    tree.heading("Price", text="Price")
+    tree.heading("Category", text="Category")
+
+    
+    for product in products:
+        tree.insert("", "end", values=product)
+
+    tree.place(x=950,y=300) 
+
+def deletefun():
+     name=prname_entry.get()
+     id=prid_entry.get()
+
      
-     
+
 def delete_product():
      clear_window(admin)
-     prname=Label(admin,text="Enter product name")
+     global prid_entry,prname_entry
+     prid=Label(admin,text="Enter Product id",font=del_font)
+     prid.place(x=500,y=200)
+     prid_entry=customtkinter.CTkEntry(admin)
+     prid_entry.place(x=550,y=160)            #x=500,y=250
+     prname=Label(admin,text="Enter product name",font=del_font)
+     prname.place(x=500,y=250)
+     prname_entry=customtkinter.CTkEntry(admin)
+     prname_entry.place(x=550,y=200)
+
+     del_btn=customtkinter.CTkButton(admin,text="Delete",command=deletefun)
+     del_btn.place(x=500,y=270)
+     create_product_table()
+
 
 
      return     
@@ -276,7 +384,7 @@ def adminfun():
 
             INSERT INTO product (product_id,prduct_name,size,catagory,price,stock) 
                      VALUES (%s, %s,%s,%s,%s,%s)
-                    """, ("1",name,int(size),catagory,int(price),int(stock)))
+                    """, ("5",name,int(size),catagory,int(price),int(stock)))
         
 
     def addproductfun():                                                                                    #add product function
@@ -339,7 +447,7 @@ def adminfun():
 
              addproductbtn=customtkinter.CTkButton(admin,text="Add product", command=addproductfun)
              addproductbtn.place(x=550,y=200)
-             delproductbtn=customtkinter.CTkButton(admin,text="Delete a Product")
+             delproductbtn=customtkinter.CTkButton(admin,text="Delete a Product",command=delete_product)
              delproductbtn.place(x=550,y=250)
              admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report).pack()
 
