@@ -8,10 +8,8 @@ import customtkinter
 from customtkinter import *
 from PIL import Image,ImageTk
 import datetime
-import firebase_admin
-from firebase_admin import credentials
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+
+#firebase_admin.initialize_app(cred)
 root=customtkinter.CTk()
 
 
@@ -76,7 +74,7 @@ widget_layout={}
 
 def migrate_data_fun():
     postgres_conn = conn
-    firebase_db = firestore.client()
+    #firebase_db = firestore.client()
     if postgres_conn and firebase_db:
         
             cursor = postgres_conn.cursor()
@@ -330,10 +328,10 @@ def product_picker(choice):
      
      
 
-     label=Label(product_frame,text=choice[1])
+     label=Label(product_frame,text=choice[0])
      product_labels.append(label)
      label.pack()
-     pricelabel=Label(price_label_frame,text=choice[4])
+     pricelabel=Label(price_label_frame,text=choice[3])
      pricelabel.pack()
 
 
@@ -438,10 +436,10 @@ def employee_view():
          
          selected_product=StringVar()
          selected_product.set("Select product")
-         data1=data[0]
+         
          
 
-         drop_product_menu=OptionMenu(root, selected_product,*data1,command=product_picker)
+         drop_product_menu=OptionMenu(root, selected_product,*data,command=product_picker)
          drop_product_menu.place(x=550,y=200)
          
          
@@ -608,8 +606,8 @@ def adminfun():
              delproductbtn.place(x=550,y=250)
              admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report)
              admin_print_sales_repot.place(x=550,y=300)
-             migrate_data=customtkinter.CTkButton(admin,text="Migrate data",command=migrate_data_fun)
-             migrate_data.place(x=550,y=300)
+             #migrate_data=customtkinter.CTkButton(admin,text="Migrate data",command=migrate_data_fun)
+            # migrate_data.place(x=550,y=300)
 
 
              
