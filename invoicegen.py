@@ -91,6 +91,11 @@ def submit_details_fun(bill):
                         """,(name,phno,bill,current_date))
      
      
+def remove_customer_widgets():
+    customer_widgets = [customer_name_label, customer_name_entry, customer_phno, customer_phno_entry, submit_customer_details_btn,customer_frame]
+    for widget in customer_widgets:
+        widget.destroy()
+
 
 
 def checkout():
@@ -104,7 +109,7 @@ def checkout():
          
          
     disable_widgets()
-    global customer_name_entry,customer_phno_entry
+    global customer_name_entry,customer_phno_entry,submit_customer_details_btn,customer_name_label,customer_phno,customer_frame
     customer_frame=LabelFrame(root,text="Customer Information",font=custom_font,padx=30,pady=30)
     customer_frame.place(x=330,y=250)
     customer_name_label=Label(customer_frame,text="Name",font=customerfont)
@@ -116,7 +121,7 @@ def checkout():
     customer_phno.grid(row=1,column=0,pady=15)
     customer_phno_entry.grid(row=1,column=1)
 
-    submit_customer_details_btn=customtkinter.CTkButton(customer_frame,text="Submit",command=lambda:submit_details_fun(total_bil))
+    submit_customer_details_btn=customtkinter.CTkButton(customer_frame,text="Submit",command=lambda:[submit_details_fun(total_bil),remove_customer_widgets()])
     submit_customer_details_btn.grid(row=2,column=1)
 
 
@@ -183,11 +188,19 @@ def product_picker(choice):
      ypr=ypr+40
      nt=nt+40
 
+def clear_window(admin1):
+        # Destroy all widgets in the window
+        for widget in admin1.winfo_children():
+             widget.destroy()     
      
      
      
-     
-     
+def delete_product():
+     clear_window(admin)
+     prname=Label(admin,text="Enter product name")
+
+
+     return     
      
      
      
@@ -325,7 +338,9 @@ def adminfun():
              #add prodrct
 
              addproductbtn=customtkinter.CTkButton(admin,text="Add product", command=addproductfun)
-             addproductbtn.place(x=400,y=500)
+             addproductbtn.place(x=550,y=200)
+             delproductbtn=customtkinter.CTkButton(admin,text="Delete a Product")
+             delproductbtn.place(x=550,y=250)
              admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report).pack()
 
              
@@ -337,7 +352,7 @@ def adminfun():
 
 
 
-
+    global admin
     admin=Toplevel()
     admin.iconbitmap('featured-image.ico')
     admin.title("Admin Pannel")
