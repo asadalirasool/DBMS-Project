@@ -8,7 +8,28 @@ import customtkinter
 from customtkinter import *
 from PIL import Image,ImageTk
 import datetime
+import firebase_admin
+from firebase_admin import credentials
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
 root=customtkinter.CTk()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 width = 800
@@ -45,6 +66,53 @@ conn.autocommit = True
 product_list=[]
 product_labels = []
 widget_layout={}
+
+
+
+
+
+
+
+
+def migrate_data_fun():
+    postgres_conn = conn
+    firebase_db = firestore.client()
+    if postgres_conn and firebase_db:
+        
+            cursor = postgres_conn.cursor()
+            # Example: Migrate data from a table named 'users'
+            cur.execute("SELECT * FROM product")
+            data = cur.fetchall()
+            for row in data:
+                # Transform row data into a dictionary
+                data_dict = {
+                    "product_id": row[0],
+                    "product_name": row[1],
+                    "size": row[2],
+                    "catagory": row[3],
+                    "price": row[4],
+                    "stock": row[5],
+                    
+                }
+                
+                firebase_db.collection("users").add(data_dict)
+            messagebox.showinfo("Success", "Data migration complete!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 cur.execute("""
@@ -316,8 +384,7 @@ def deletefun():
     print(name)
     print(id)
     for p in products:
-        print(p[0])
-        print(p[5])
+        
         if (p[0] == name and p[5] == id):
 
             cur.execute("""DELETE FROM product WHERE product_id = %s""", (id,))
@@ -371,9 +438,10 @@ def employee_view():
          
          selected_product=StringVar()
          selected_product.set("Select product")
+         data1=data[0]
          
 
-         drop_product_menu=OptionMenu(root, selected_product,*data,command=product_picker)
+         drop_product_menu=OptionMenu(root, selected_product,*data1,command=product_picker)
          drop_product_menu.place(x=550,y=200)
          
          
@@ -540,6 +608,9 @@ def adminfun():
              delproductbtn.place(x=550,y=250)
              admin_print_sales_repot=customtkinter.CTkButton(admin,text="Print today sales report",command=print_sales_report)
              admin_print_sales_repot.place(x=550,y=300)
+             migrate_data=customtkinter.CTkButton(admin,text="Migrate data",command=migrate_data_fun)
+             migrate_data.place(x=550,y=300)
+
 
              
 
